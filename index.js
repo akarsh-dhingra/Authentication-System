@@ -52,10 +52,10 @@ console.log(`App is listening to ${port}`);
 const userDb=[{id:1,name:"Akarsh",todo:"Go to gym"},{id:2,name:"Swapnil",todo:"Go to Banglore"}];
 
 
-app.get("/",logger,(req,res)=>{
+app.get("/",(req,res)=>{
     res.send("Server is listening ");
 });
 
-app.get("/api/users",logger,(req,res)=>{
+app.get("/api/users",(req,res)=>{
 res.send(userDb);
 })
