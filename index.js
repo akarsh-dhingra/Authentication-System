@@ -6,7 +6,7 @@ import express from "express";
 
 import cookieParser from "cookie-parser";
 import app from "./app.js";
-
+import logger from "./middlewares/logger.js";
 
 app.use(express.json({limit:"16kb"}));   // It is used to parse the JSON data.
 app.use(express.urlencoded({extended:true,limit:"16kb"}));  // It is ude  
@@ -52,10 +52,10 @@ console.log(`App is listening to ${port}`);
 const userDb=[{id:1,name:"Akarsh",todo:"Go to gym"},{id:2,name:"Swapnil",todo:"Go to Banglore"}];
 
 
-app.get("/",(req,res)=>{
+app.get("/",logger,(req,res)=>{
     res.send("Server is listening ");
-})
+});
 
-app.get("/api/users",(req,res)=>{
+app.get("/api/users",logger,(req,res)=>{
 res.send(userDb);
 })
