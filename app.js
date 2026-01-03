@@ -13,6 +13,16 @@ morgan(function (tokens,req,res){
     tokens['response-time'](req, res), 'ms'
     ].join(' ')
 });
+app.use("/api",(req,res,next)=>{
+    const {token}=req.query;
+    if(token=="giveAccess"){
+        next();
+    }
+    else{
+        res.send("Access Denied");
+    }
+})
+
 app.use(morgan('combined'));
 app.use(cors({
     origin:process.env.CORS_ORIGIN,

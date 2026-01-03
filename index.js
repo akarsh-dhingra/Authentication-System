@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import mongoose from "mongoose";
 import express from "express";
 
@@ -33,6 +32,7 @@ console.log(`App is listening to ${port}`);
 .catch(()=>{
     console.log("It is not running");
 })
+
 // (async ()=> {
 //     try{
 //        await mongoose.connect(`${process.env.MONGODB_URI}`);
