@@ -1,44 +1,53 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import morgan from "morgan";
+import userRouter from "./routes/user.routes.js";
+import connectDb from "./db/index.js";
 
 const app=express();
-morgan(function (tokens,req,res){
-   return [
-    tokens.method(req, res),
-    tokens.url(req, res),
-    tokens.status(req, res),
-    tokens.res(req, res, 'content-length'), '-',
-    tokens['response-time'](req, res), 'ms'
-    ].join(' ')
-});
-app.use("/api",(req,res,next)=>{
-    const {token}=req.query;
-    if(token=="giveAccess"){
-        next();
-    }
-    else{
-        res.send("Access Denied");
-    }
-})
-
-app.use(morgan('combined'));
+// app.use(morgan('combined'));
 app.use(cors({
     origin:process.env.CORS_ORIGIN,
     credentials:true
 }));
 app.use(express.json({limit:"16kb"}));
 app.use(express.urlencoded({extended:true,limit:"16kb"}));
-// 
-app.use(express.static("public"));  // jab bhi koi file aayi yah folder aaya and hum usse apne hee folder mai store rkhna chahte hai 
+
+app.use(express.static("public"));  
 app.use(cookieParser());
-// then it is for that purpose.
-// File aa rhi hai image aa rhi hai form sa kuch data aa rha hai 
-// Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 
-// Middleware are used before sending anything to the client in order to validate the user and at the times to support authentication. 
+const port = process.env.PORT || 3001;
+
+// // Debug: List all registered routes
+// app._router.stack.forEach((middleware) => {
+//   if (middleware.route) {
+//     // routes registered directly on the app
+//     console.log(middleware.route);
+//   } else if (middleware.name === 'router') {
+//     // router middleware 
+//     middleware.handle.stack.forEach((handler) => {
+//       if (handler.route) {
+//         console.log(handler.route);
+//       }
+//     });
+//   }
+// });
+app.use("/api/v1/users",userRouter);
+connectDb()
+  // If database successfully got connected then we will listen
+  // to the port
+  .then(() => {
+    app.on("error", (err) => {
+      console.log("ERROR", err);
+      throw err;
+    });
+    app.listen(port, () => {
+      console.log(`App is listening to ${port}`);
+    });
+  })
+  .catch(() => {
+    console.log("It is not running");
+  });
+
+
 export default app;
-
-// Data will be coming in the form of JSON // like postman request 
-// Data will be coming in the form of req.body from others

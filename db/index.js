@@ -8,7 +8,7 @@ const connectDb=async ()=>{
 try{
 
     const connectionInstance=await mongoose.connect(`${process.env.MONGODB_URI}`);
-    console.log("MongoDb is running successfully");
+    console.log("MongoDb is running successfully:",connectionInstance.connection._connectionString);
 } catch(e){
     console.log("MongoDb is not running");
 }
