@@ -5,7 +5,9 @@ import { ApiError } from "../utils/ApiError.js";
 import uploadoncloudinary from "../utils/cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import bcrypt from "bcrypt";
-
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 // const registerUser=async(req,res)=>{
 //     res.json({msg:"The route is working!!"});
 // })
@@ -173,5 +175,33 @@ const logoutUser=asynchandler(async(req,res)=>{
     .json(new ApiResponse(200,{},"User Logged out"));
 });
 
-
-export {registerUser,loginUser,logoutUser};
+const refreshAccessToken=asynchandler(async(req,res)=>{
+    try {
+        const incomingRefreshToken=req.cookies.refreshToken;
+        if(!incomingRefreshToken){
+            throw new ApiError(401,"unauthorized request");
+        }
+        const decoded=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET);
+    
+        const userFound=await User.findById(decoded._id);
+    
+        if(!userFound){
+            throw new ApiError(401,"Invalid refresh token"); 
+        }
+        if(incomingRefreshToken!=userFound?.refreshToken){
+            throw new ApiError(401,"Invalid refresh token"); 
+        }
+        const{accessToken,refreshToken}=generateAccessandRefereshToken(userFound);
+        const options={
+            httpOnly:true,
+            safe:true
+        }
+    
+        return res.status(200)
+        .cookie("refreshToken",refreshToken,options)
+        .json(accessToken);
+    } catch (error) {
+        return res.status(404).json(error.message);
+    }
+});
+export {registerUser,loginUser,logoutUser,refreshAccessToken};
